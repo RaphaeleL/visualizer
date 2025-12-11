@@ -13,15 +13,24 @@ void usage() {
 }
 
 int main(int argc, char** argv) {
+    if (argc < 2) {
+        const char* program = argv[0] ? argv[0] : "program";
+        qol_error("Usage: %s <type>\n", program);
+    }
+
     const char* program = qol_shift(argc, argv); 
-    if (argc < 1) qol_error("Usage: %s <type>\n", program);
 
     const char* val = qol_shift(argc, argv);
 
-    if (strcmp(val, "maze") == 0) maze();
-    if (strcmp(val, "sort") == 0) sort();
-    if (strcmp(val, "usage") == 0) usage();
-    else qol_error("Unknown type: %s\n", val);
+    if (strcmp(val, "maze") == 0) {
+        maze();
+    } else if (strcmp(val, "sort") == 0) {
+        sort();
+    } else if (strcmp(val, "usage") == 0) {
+        usage();
+    } else {
+        qol_error("Unknown type: %s\n", val);
+    }
 
 
     return 0;
