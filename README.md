@@ -3,6 +3,8 @@
 Tiny raylib playground that renders a random maze and visualizes search
 algorithms, plus a simple sorting visualizer.
 
+![Maze](assets/example_maze.png)
+
 ## Requirements
 
 - C compiler 
@@ -32,8 +34,6 @@ The helper emits a binary named `main`.
 - *Maze search*: edit `maze.h` and swap which header is included under the “Choose one algorithm” section (bfs/dfs/greedy/astar/dijkstra).
 - *Sorting*: edit `sort.h` and choose one include under its “Choose one algorithm” section (bubble/selection/merge/quick/heap).
 
-## Example
-
-![Maze](assets/example_maze.png)
+## Further Example
 
 ![Sort](assets/example_sort.png)
