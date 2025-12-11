@@ -31,3 +31,9 @@ The helper emits a binary named `main`.
 
 - *Maze search*: edit `maze.h` and swap which header is included under the “Choose one algorithm” section (bfs/dfs/greedy/astar/dijkstra).
 - *Sorting*: edit `sort.h` and choose one include under its “Choose one algorithm” section (bubble/selection/merge/quick/heap).
+
+## Example
+
+![Maze](assets/example_maze.png)
+
+![Sort](assets/example_sort.png)
