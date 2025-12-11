@@ -71,9 +71,15 @@ static inline bool step(SearchState *s) {
         heap_push(s, startIdx);
     }
 
-    int bestIdx = heap_pop(s);
+    int bestIdx = -1;
+    while (s->heap_len > 0) {
+        int candidate = heap_pop(s);
+        if (candidate == -1) break;
+        if (s->processed[candidate]) continue;
+        bestIdx = candidate;
+        break;
+    }
     if (bestIdx == -1) return false;
-    if (s->processed[bestIdx]) return false;
 
     int x = bestIdx % s->N;
     int y = bestIdx / s->N;
