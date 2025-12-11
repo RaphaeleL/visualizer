@@ -4,6 +4,12 @@
 #include "maze.h"
 #include "sort.h"
 
+typedef void (*cmd_fn)(void);
+typedef struct {
+    const char *name;
+    cmd_fn fn;
+} Command;
+
 void usage() {
     qol_warn("Usage: <program> <param>\n");
     qol_warn("param:\n");
@@ -12,26 +18,37 @@ void usage() {
     qol_warn("  usage  - Show this usage information\n");
 }
 
+static Command commands[] = {
+    { "maze",  maze },
+    { "sort",  sort },
+    { "usage", usage },
+};
+
+
+cmd_fn lookup_command(const char *name) {
+    for (int i = 0; i < (int)QOL_ARRAY_LEN(commands); i++) {
+        if (strcmp(commands[i].name, name) == 0) {
+            return commands[i].fn;
+        }
+    }
+    return NULL;
+}
+
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        const char* program = argv[0] ? argv[0] : "program";
-        qol_error("Usage: %s <type>\n", program);
-    }
+    if (argc < 2) usage();
+    
 
-    const char* program = qol_shift(argc, argv); 
-
+    qol_shift(argc, argv); 
     const char* val = qol_shift(argc, argv);
+    cmd_fn fn = lookup_command(val);
 
-    if (strcmp(val, "maze") == 0) {
-        maze();
-    } else if (strcmp(val, "sort") == 0) {
-        sort();
-    } else if (strcmp(val, "usage") == 0) {
-        usage();
-    } else {
+    if (!fn) {
         qol_error("Unknown type: %s\n", val);
+        usage();
+        return EXIT_FAILURE;
     }
 
+    fn();
 
-    return 0;
+    return EXIT_SUCCESS;
 }
