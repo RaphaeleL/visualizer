@@ -1,5 +1,5 @@
-#define SHL_IMPLEMENTATION
-#define SHL_STRIP_PREFIX
+#define QOL_IMPLEMENTATION
+#define QOL_STRIP_PREFIX
 #include "libs/build.h"
 
 int main() {
@@ -18,7 +18,7 @@ int main() {
     push(&cmd_plasma, "-Wl,-rpath,@executable_path/libs/raylib-5.5_macos/lib");
     push(&cmd_plasma, "-lraylib");
     push(&cmd_plasma, "-lm");
-    push(&cmd_plasma, "-o", "maze", "maze.c");
+    push(&cmd_plasma, "-o", "main", "main.c");
 
     if (!run_always(&cmd_plasma)) return 1;
 
