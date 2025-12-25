@@ -22,6 +22,7 @@ The helper emits a binary named `main`.
 
 - Maze search visualizer: `./main maze`
 - Sorting visualizer: `./main sort`
+- Function visualizer: `./main plotter <function>` (e.g. `sin(x) + x^2`, etc.)
 - Help: `./main usage`
 
 ### Controls
@@ -33,6 +34,7 @@ The helper emits a binary named `main`.
 
 - *Maze search*: edit `maze.h` and swap which header is included under the “Choose one algorithm” section (bfs/dfs/greedy/astar/dijkstra).
 - *Sorting*: edit `sort.h` and choose one include under its “Choose one algorithm” section (bubble/selection/merge/quick/heap).
+- *Function plotter*: set the function as a command line argument when running `./main plotter <function>`.
 
 ## Further Example
 
