@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #define QOL_IMPLEMENTATION
 #define QOL_STRIP_PREFIX
 #include "libs/build.h"
@@ -5,22 +6,55 @@
 int main() {
     auto_rebuild(__FILE__);
 
-    Cmd cmd_plasma = {0};
-    push(&cmd_plasma, "cc");
-    push(&cmd_plasma, "-O3");
-    push(&cmd_plasma, "-march=native");
-    push(&cmd_plasma, "-ffast-math");
-    push(&cmd_plasma, "-funroll-loops");
-    push(&cmd_plasma, "-Wall");
-    push(&cmd_plasma, "-Wextra");
-    push(&cmd_plasma, "-I./libs/raylib-5.5_macos/include");
-    push(&cmd_plasma, "-L./libs/raylib-5.5_macos/lib");
-    push(&cmd_plasma, "-Wl,-rpath,@executable_path/libs/raylib-5.5_macos/lib");
-    push(&cmd_plasma, "-lraylib");
-    push(&cmd_plasma, "-lm");
-    push(&cmd_plasma, "-o", "main", "main.c");
+    const char *files[][2] = {
+        { "main.c",                     "out/main.o" },
+        { "algorithms/maze/common.c",   "out/common.o" },
+        { "algorithms/maze/bfs.c",      "out/bfs.o" },
+        { "algorithms/maze/dfs.c",      "out/dfs.o" },
+        { "algorithms/maze/dijkstra.c", "out/dijkstra.o" },
+        { "algorithms/maze/astar.c",    "out/astar.o" },
+        { "algorithms/maze/greedy.c",   "out/greedy.o" },
+        { "algorithms/sort/heap.c",     "out/heap.o" },
+        { "algorithms/sort/merge.c",    "out/merge.o" },
+        { "algorithms/sort/quick.c",    "out/quick.o" },
+        { "algorithms/sort/selection.c","out/selection.o" },
+        { "algorithms/sort/bubble.c",   "out/bubble.o" },
+    };
 
-    if (!run_always(&cmd_plasma)) return 1;
+    mkdir_if_not_exists("out/");
 
-    return 0;
+    for (size_t i = 0; i < ARRAY_LEN(files); i++) {
+        Cmd cc = (Cmd){0};
+        push(&cc, "cc");
+        push(&cc, "-O3");
+        push(&cc, "-Wall");
+        push(&cc, "-Wextra");
+        push(&cc, "-Wno-unused-function");
+        push(&cc, "-I./libs/raylib-5.5_macos/include");
+        push(&cc, "-c");
+        push(&cc, files[i][0]);
+        push(&cc, "-o");
+        push(&cc, files[i][1]);
+        if (!run_always(&cc)) return EXIT_FAILURE;
+    }
+
+    Cmd link = (Cmd){0};
+    push(&link, "cc");
+    push(&link, "-O3");
+    push(&link, "-Wall");
+    push(&link, "-Wextra");
+    push(&link, "-I./libs/raylib-5.5_macos/include");
+    push(&link, "-L./libs/raylib-5.5_macos/lib");
+    push(&link, "-Wl,-rpath,@executable_path/libs/raylib-5.5_macos/lib");
+    push(&link, "-lraylib");
+    push(&link, "-lm");
+    push(&link, "-o");
+    push(&link, "main");
+    for (size_t i = 0; i < ARRAY_LEN(files); i++) {
+        push(&link, files[i][1]);
+    }
+
+    if (!run_always(&link)) return EXIT_FAILURE;
+
+    return EXIT_SUCCESS;
 }
