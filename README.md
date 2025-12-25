@@ -1,6 +1,6 @@
 # Visualizer
 
-Tiny raylib playground that renders a random maze and visualizes search algorithms, a simple sorting visualizer or even an interactive function plotter.
+Tiny raylib playground that renders several visualizations for algorithms or functions.
 
 ![Maze](assets/example_maze.png)
 
@@ -10,30 +10,31 @@ Tiny raylib playground that renders a random maze and visualizes search algorith
 - [raylib](https://github.com/raysan5/raylib) - Bundled `libs/raylib-5.5_macos/` (no extra install needed)
 - [build.h](https://github.com/RaphaeleL/build.h) - Bundled `libs/build.h` (no extra install needed)
 
-## Build
+## Usage 
 
-- Compile the builder: `cc build.c -o build`
-- Compile the app: `./build`
+First you have to build the application:
 
-The helper emits a binary named `main`.
+```bash
+cc build.c -o build` # Compile the builder
+./build # Compile the app
+```
 
-## Run
+The helper emits a binary named `main`. Now you can run the visualizer itself:
 
-- Maze search visualizer: `./main maze`
-- Sorting visualizer: `./main sort`
-- Function visualizer: `./main plotter <function>` (e.g. `sin(x) + x^2`, etc.)
-- Help: `./main usage`
+```bash
+./main maze # Maze search visualizer
+./main sort # Sorting visualizer
+./main plotter "x^2" # Function visualizer
+./main usage # Help
+```
 
-### Controls
+Since its a raylib application, it opens a window to display the visualizations, press `Esc` to quit. Inside the maze or the sorter, you can press `r` to reset/regenerate.
 
-- `Esc` to quit
-- `r` to re-generate the maze or reset the sorter, do nothing in the plotter
+To switch between between alogorithms or functions, use the `entries/*.h` Header Files.
 
-## Switching algorithms
-
-- **Maze search**: edit `maze.h` and swap which header is included under the “Choose one algorithm” section (bfs/dfs/greedy/astar/dijkstra).
-- **Sorting**: edit `sort.h` and choose one include under its “Choose one algorithm” section (bubble/selection/merge/quick/heap).
-- **Function plotter**: set the function as a command line argument when running `./main plotter <function>` or edit `plotter.h` and change the default function `static double f(double x)`.
+- **Maze search**: edit `entries/maze.h` and swap which header is included under the “Choose one algorithm” section (bfs/dfs/greedy/astar/dijkstra).
+- **Sorting**: edit `entries/sort.h` and choose one include under its “Choose one algorithm” section (bubble/selection/merge/quick/heap).
+- **Function plotter**: set the function as a command line argument when running `./main plotter <function>` or edit `entries/plotter.h` and change the default function `static double f(double x)`.
 
 ## Further Example
 
