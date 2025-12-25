@@ -3,6 +3,7 @@
 
 #include "maze.h"
 #include "sort.h"
+#include "plotter.h"
 
 typedef void (*cmd_fn)(void);
 typedef struct {
@@ -13,15 +14,17 @@ typedef struct {
 void usage() {
     qol_warn("Usage: <program> <param>\n");
     qol_warn("param:\n");
-    qol_warn("  maze   - Path finding Algorithms like Dijkstra.\n");
-    qol_warn("  sort   - Sorting Algorithms like Merge Sort.\n");
-    qol_warn("  usage  - Show this usage information\n");
+    qol_warn("  maze    - Path finding Algorithms like Dijkstra.\n");
+    qol_warn("  sort    - Sorting Algorithms like Merge Sort.\n");
+    qol_warn("  plotter - Function Plotter for f(x).\n");
+    qol_warn("  usage   - Show this usage information\n");
 }
 
 static Command commands[] = {
-    { "maze",  maze },
-    { "sort",  sort },
-    { "usage", usage },
+    { "maze",    maze },
+    { "sort",    sort },
+    { "plotter", plotter },
+    { "usage",   usage },
 };
 
 
