@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
     }
 
     // Get optional argument (for plotter function string)
-    const char* arg = qol_shift(argc, argv);
+    const char* arg = (argc > 0) ? qol_shift(argc, argv) : NULL;
     fn(arg);
 
     return EXIT_SUCCESS;
