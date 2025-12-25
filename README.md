@@ -1,4 +1,4 @@
-# Maze & Sorting Visualizer
+# Visualizer
 
 Tiny raylib playground that renders a random maze and visualizes search
 algorithms, plus a simple sorting visualizer.
@@ -38,4 +38,15 @@ The helper emits a binary named `main`.
 
 ## Further Example
 
+### Interactive Function Plotter 
+
+![Plotter](assets/example_plotter.png)
+
+### Display of Sorting Algorithm
+
 ![Sort](assets/example_sort.png)
+
+### Maze Search Visualization
+
+![Maze](assets/example_maze.png)
+
