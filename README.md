@@ -1,7 +1,6 @@
 # Visualizer
 
-Tiny raylib playground that renders a random maze and visualizes search
-algorithms, plus a simple sorting visualizer.
+Tiny raylib playground that renders a random maze and visualizes search algorithms, a simple sorting visualizer or even an interactive function plotter.
 
 ![Maze](assets/example_maze.png)
 
@@ -28,13 +27,13 @@ The helper emits a binary named `main`.
 ### Controls
 
 - `Esc` to quit
-- `r` to re-generate the maze or reset the sorter
+- `r` to re-generate the maze or reset the sorter, do nothing in the plotter
 
 ## Switching algorithms
 
-- *Maze search*: edit `maze.h` and swap which header is included under the “Choose one algorithm” section (bfs/dfs/greedy/astar/dijkstra).
-- *Sorting*: edit `sort.h` and choose one include under its “Choose one algorithm” section (bubble/selection/merge/quick/heap).
-- *Function plotter*: set the function as a command line argument when running `./main plotter <function>`.
+- **Maze search**: edit `maze.h` and swap which header is included under the “Choose one algorithm” section (bfs/dfs/greedy/astar/dijkstra).
+- **Sorting**: edit `sort.h` and choose one include under its “Choose one algorithm” section (bubble/selection/merge/quick/heap).
+- **Function plotter**: set the function as a command line argument when running `./main plotter <function>` or edit `plotter.h` and change the default function `static double f(double x)`.
 
 ## Further Example
 
