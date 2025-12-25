@@ -5,26 +5,39 @@
 #include "sort.h"
 #include "plotter.h"
 
-typedef void (*cmd_fn)(void);
+typedef void (*cmd_fn)(const char *arg);
 typedef struct {
     const char *name;
     cmd_fn fn;
 } Command;
 
-void usage() {
-    qol_warn("Usage: <program> <param>\n");
+void usage_wrapper(const char *arg) {
+    (void)arg; // unused
+    qol_warn("Usage: <program> <param> [args...]\n");
     qol_warn("param:\n");
     qol_warn("  maze    - Path finding Algorithms like Dijkstra.\n");
     qol_warn("  sort    - Sorting Algorithms like Merge Sort.\n");
-    qol_warn("  plotter - Function Plotter for f(x).\n");
+    qol_warn("  plotter [function] - Function Plotter for f(x).\n");
+    qol_warn("           Example: ./main plotter \"sin(x) * cos(x)\"\n");
+    qol_warn("           Example: ./main plotter \"x^3 - 2*x + 1\"\n");
     qol_warn("  usage   - Show this usage information\n");
 }
 
+void maze_wrapper(const char *arg) {
+    (void)arg; // unused
+    maze();
+}
+
+void sort_wrapper(const char *arg) {
+    (void)arg; // unused
+    sort();
+}
+
 static Command commands[] = {
-    { "maze",    maze },
-    { "sort",    sort },
-    { "plotter", plotter },
-    { "usage",   usage },
+    { "maze",    maze_wrapper },
+    { "sort",    sort_wrapper },
+    { "plotter", plotter_wrapper },
+    { "usage",   usage_wrapper },
 };
 
 
@@ -38,8 +51,10 @@ cmd_fn lookup_command(const char *name) {
 }
 
 int main(int argc, char** argv) {
-    if (argc < 2) usage();
-    
+    if (argc < 2) {
+        usage_wrapper(NULL);
+        return EXIT_FAILURE;
+    }
 
     qol_shift(argc, argv); 
     const char* val = qol_shift(argc, argv);
@@ -47,11 +62,13 @@ int main(int argc, char** argv) {
 
     if (!fn) {
         qol_error("Unknown type: %s\n", val);
-        usage();
+        usage_wrapper(NULL);
         return EXIT_FAILURE;
     }
 
-    fn();
+    // Get optional argument (for plotter function string)
+    const char* arg = qol_shift(argc, argv);
+    fn(arg);
 
     return EXIT_SUCCESS;
 }

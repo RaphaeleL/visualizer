@@ -2,24 +2,260 @@
 #include <raylib.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 #define QOL_IMPLEMENTATION
 #include "libs/build.h"
 
-// Define your function here: f(x) = <whatever>
-// Also update FUNCTION_STRING below to match your function
-// #define FUNCTION_STRING "f(x) = x^3 - 2x + 1"
+// Simple expression parser for mathematical expressions
+typedef struct {
+    const char *expr;
+    int pos;
+    double x_value;
+    bool has_error;
+    char error_msg[128];
+} ExprParser;
 
-static double f(double x) {
-    // return sin(x);
-    // return x * x;                    // parabola -> "f(x) = x^2"
-    return sin(x) * cos(x);          // product -> "f(x) = sin(x) * cos(x)"
-    // return exp(-x * x / 10);         // gaussian -> "f(x) = e^(-x^2/10)"
-    // return x * sin(x);               // x * sin(x) -> "f(x) = x * sin(x)"
-    // return pow(x, 3) - 2 * x + 1;    // polynomial -> "f(x) = x^3 - 2x + 1"
+static void skip_whitespace(ExprParser *p) {
+    while (p->expr[p->pos] && isspace((unsigned char)p->expr[p->pos])) {
+        p->pos++;
+    }
 }
 
-void plotter(void) {
+static double parse_expression(ExprParser *p);
+static double parse_term(ExprParser *p);
+static double parse_factor(ExprParser *p);
+static double parse_power(ExprParser *p);
+static double parse_atom(ExprParser *p);
+
+static double parse_atom(ExprParser *p) {
+    skip_whitespace(p);
+    
+    if (!p->expr[p->pos]) {
+        p->has_error = true;
+        snprintf(p->error_msg, sizeof(p->error_msg), "Unexpected end of expression");
+        return 0.0;
+    }
+    
+    if (p->expr[p->pos] == '(') {
+        p->pos++;
+        double result = parse_expression(p);
+        skip_whitespace(p);
+        if (p->expr[p->pos] == ')') {
+            p->pos++;
+            return result;
+        }
+        p->has_error = true;
+        snprintf(p->error_msg, sizeof(p->error_msg), "Mismatched parenthesis at position %d", p->pos);
+        return 0.0;
+    }
+    
+    if (p->expr[p->pos] == 'x' || p->expr[p->pos] == 'X') {
+        p->pos++;
+        return p->x_value;
+    }
+    
+    if (p->expr[p->pos] == '-') {
+        p->pos++;
+        return -parse_atom(p);
+    }
+    
+    if (p->expr[p->pos] == '+') {
+        p->pos++;
+        return parse_atom(p);
+    }
+    
+    // Parse number
+    if (isdigit((unsigned char)p->expr[p->pos]) || p->expr[p->pos] == '.') {
+        char *end;
+        double val = strtod(p->expr + p->pos, &end);
+        p->pos = (int)(end - p->expr);
+        return val;
+    }
+    
+    // Parse functions: sin, cos, exp, log, sqrt, pow
+    if (strncmp(p->expr + p->pos, "sin", 3) == 0) {
+        p->pos += 3;
+        skip_whitespace(p);
+        if (p->expr[p->pos] == '(') {
+            p->pos++;
+            double arg = parse_expression(p);
+            skip_whitespace(p);
+            if (p->expr[p->pos] == ')') p->pos++;
+            return sin(arg);
+        }
+        return sin(parse_atom(p));
+    }
+    
+    if (strncmp(p->expr + p->pos, "cos", 3) == 0) {
+        p->pos += 3;
+        skip_whitespace(p);
+        if (p->expr[p->pos] == '(') {
+            p->pos++;
+            double arg = parse_expression(p);
+            skip_whitespace(p);
+            if (p->expr[p->pos] == ')') p->pos++;
+            return cos(arg);
+        }
+        return cos(parse_atom(p));
+    }
+    
+    if (strncmp(p->expr + p->pos, "exp", 3) == 0) {
+        p->pos += 3;
+        skip_whitespace(p);
+        if (p->expr[p->pos] == '(') {
+            p->pos++;
+            double arg = parse_expression(p);
+            skip_whitespace(p);
+            if (p->expr[p->pos] == ')') p->pos++;
+            return exp(arg);
+        }
+        return exp(parse_atom(p));
+    }
+    
+    if (strncmp(p->expr + p->pos, "log", 3) == 0) {
+        p->pos += 3;
+        skip_whitespace(p);
+        if (p->expr[p->pos] == '(') {
+            p->pos++;
+            double arg = parse_expression(p);
+            skip_whitespace(p);
+            if (p->expr[p->pos] == ')') p->pos++;
+            return log(arg);
+        }
+        return log(parse_atom(p));
+    }
+    
+    if (strncmp(p->expr + p->pos, "sqrt", 4) == 0) {
+        p->pos += 4;
+        skip_whitespace(p);
+        if (p->expr[p->pos] == '(') {
+            p->pos++;
+            double arg = parse_expression(p);
+            skip_whitespace(p);
+            if (p->expr[p->pos] == ')') p->pos++;
+            return sqrt(arg);
+        }
+        return sqrt(parse_atom(p));
+    }
+    
+    if (strncmp(p->expr + p->pos, "pow", 3) == 0) {
+        p->pos += 3;
+        skip_whitespace(p);
+        if (p->expr[p->pos] == '(') {
+            p->pos++;
+            double base = parse_expression(p);
+            skip_whitespace(p);
+            if (p->expr[p->pos] == ',') {
+                p->pos++;
+                skip_whitespace(p);
+                double exp = parse_expression(p);
+                skip_whitespace(p);
+                if (p->expr[p->pos] == ')') {
+                    p->pos++;
+                    return pow(base, exp);
+                }
+            }
+        }
+    }
+    
+    // Unknown token - this is an error
+    p->has_error = true;
+    int start_pos = p->pos;
+    while (p->expr[p->pos] && !isspace((unsigned char)p->expr[p->pos]) && 
+           p->expr[p->pos] != '+' && p->expr[p->pos] != '-' && 
+           p->expr[p->pos] != '*' && p->expr[p->pos] != '/' && 
+           p->expr[p->pos] != '^' && p->expr[p->pos] != '(' && 
+           p->expr[p->pos] != ')' && p->expr[p->pos] != ',') {
+        p->pos++;
+    }
+    int len = p->pos - start_pos;
+    if (len > 20) len = 20;
+    snprintf(p->error_msg, sizeof(p->error_msg), "Unknown token '%.*s' at position %d", len, p->expr + start_pos, start_pos);
+    return 0.0;
+}
+
+static double parse_power(ExprParser *p) {
+    double left = parse_atom(p);
+    skip_whitespace(p);
+    
+    if (p->expr[p->pos] == '^') {
+        p->pos++;
+        skip_whitespace(p);
+        double right = parse_power(p);
+        return pow(left, right);
+    }
+    
+    return left;
+}
+
+static double parse_factor(ExprParser *p) {
+    double left = parse_power(p);
+    skip_whitespace(p);
+    
+    while (p->expr[p->pos] == '*' || p->expr[p->pos] == '/') {
+        char op = p->expr[p->pos];
+        p->pos++;
+        skip_whitespace(p);
+        double right = parse_power(p);
+        if (op == '*') {
+            left *= right;
+        } else {
+            if (right == 0.0) return 0.0; // Avoid division by zero
+            left /= right;
+        }
+        skip_whitespace(p);
+    }
+    
+    return left;
+}
+
+static double parse_term(ExprParser *p) {
+    double left = parse_factor(p);
+    skip_whitespace(p);
+    
+    while (p->expr[p->pos] == '+' || p->expr[p->pos] == '-') {
+        char op = p->expr[p->pos];
+        p->pos++;
+        skip_whitespace(p);
+        double right = parse_factor(p);
+        if (op == '+') {
+            left += right;
+        } else {
+            left -= right;
+        }
+        skip_whitespace(p);
+    }
+    
+    return left;
+}
+
+static double parse_expression(ExprParser *p) {
+    return parse_term(p);
+}
+
+static double evaluate_function(const char *expr, double x, bool *has_error, char *error_msg) {
+    ExprParser parser = {expr, 0, x, false, ""};
+    double result = parse_expression(&parser);
+    
+    // Check if we parsed the entire expression
+    skip_whitespace(&parser);
+    if (parser.expr[parser.pos] != '\0' && !parser.has_error) {
+        parser.has_error = true;
+        snprintf(parser.error_msg, sizeof(parser.error_msg), "Unexpected character '%c' at position %d", parser.expr[parser.pos], parser.pos);
+    }
+    
+    if (has_error) *has_error = parser.has_error;
+    if (error_msg && parser.has_error) {
+        strncpy(error_msg, parser.error_msg, 127);
+        error_msg[127] = '\0';
+    }
+    
+    return result;
+}
+
+void plotter_wrapper(const char *function_str) {
     const int SCREEN_W = 1000;
     const int SCREEN_H = 720;
     
@@ -32,6 +268,27 @@ void plotter(void) {
     // Number of points to sample
     const int NUM_POINTS = 1000;
     
+    // Default function if none provided
+    if (!function_str || strlen(function_str) == 0) {
+        function_str = "sin(x) * cos(x)";
+    }
+    
+    // Validate the function string
+    bool parse_error = false;
+    char error_msg[128] = {0};
+    (void)evaluate_function(function_str, 0.0, &parse_error, error_msg);
+    
+    if (parse_error) {
+        qol_error("Invalid function expression: %s\n", function_str);
+        qol_error("Error: %s\n", error_msg);
+        qol_error("Valid examples:\n");
+        qol_error("  sin(x) * cos(x)\n");
+        qol_error("  x^3 - 2*x + 1\n");
+        qol_error("  exp(-x*x/10)\n");
+        qol_error("  pow(x, 2)\n");
+        return;
+    }
+    
     InitWindow(SCREEN_W, SCREEN_H, "Function Plotter");
     SetTargetFPS(60);
     
@@ -43,7 +300,12 @@ void plotter(void) {
     for (int i = 0; i < NUM_POINTS; i++) {
         double x = x_min + (x_max - x_min) * i / (NUM_POINTS - 1);
         x_values[i] = x;
-        y_values[i] = f(x);
+        bool err = false;
+        y_values[i] = evaluate_function(function_str, x, &err, NULL);
+        if (err) {
+            // Should not happen if initial validation passed, but handle gracefully
+            y_values[i] = 0.0;
+        }
     }
     
     // Use fixed range or auto-scaled range
@@ -89,7 +351,9 @@ void plotter(void) {
             for (int i = 0; i < NUM_POINTS; i++) {
                 double x = x_min + (x_max - x_min) * i / (NUM_POINTS - 1);
                 x_values[i] = x;
-                y_values[i] = f(x);
+                bool err = false;
+                y_values[i] = evaluate_function(function_str, x, &err, NULL);
+                if (err) y_values[i] = 0.0;
             }
             
             last_mouse_pos = mouse_pos;
@@ -128,7 +392,9 @@ void plotter(void) {
             for (int i = 0; i < NUM_POINTS; i++) {
                 double x = x_min + (x_max - x_min) * i / (NUM_POINTS - 1);
                 x_values[i] = x;
-                y_values[i] = f(x);
+                bool err = false;
+                y_values[i] = evaluate_function(function_str, x, &err, NULL);
+                if (err) y_values[i] = 0.0;
             }
         }
         
@@ -220,7 +486,16 @@ void plotter(void) {
             int lineY = panelY + 12;
             DrawText("Function Plotter", panelX + 10, lineY, 20, RAYWHITE); lineY += 24;
             
-            // DrawText(FUNCTION_STRING, panelX + 10, lineY, 16, GREEN); lineY += 20;
+            // Display function string (truncate if too long)
+            char func_display[64];
+            snprintf(func_display, sizeof(func_display), "f(x) = %s", function_str);
+            if (strlen(func_display) > 40) {
+                func_display[37] = '.';
+                func_display[38] = '.';
+                func_display[39] = '.';
+                func_display[40] = '\0';
+            }
+            DrawText(func_display, panelX + 10, lineY, 14, GREEN); lineY += 18;
             
             snprintf(buf, sizeof(buf), "Range: [%.2f, %.2f]", x_min, x_max);
             DrawText(buf, panelX + 10, lineY, 16, YELLOW); lineY += 20;
