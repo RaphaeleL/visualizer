@@ -1,5 +1,4 @@
 #pragma once
-#include <raylib.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +6,29 @@
 
 #define QOL_IMPLEMENTATION
 #include "libs/build.h"
+
+// Hardcoded function used when no CLI argument is provided
+static double f(double x) {
+
+    // NOTE: Oscillatory + nonlinear
+    // return exp(-x * x) * sin(10.0 * x) + cos(x * x * x) / (1.0 + x * x);
+
+    // NOTE: Fractal-like (finite Weierstrass-style sum)
+    double sum = 0.0;
+    double denom = 2.0;
+    double freq  = 2.0;
+    for (int n = 1; n <= 10; n++) {
+        sum += sin(freq * x) / denom;
+        freq  *= 2.0;
+        denom *= 2.0;
+    }
+    return sum;
+
+    // NOTE: Piecewise function
+    // if (x < 0.0) return sin(x);
+    // else if (x < 2.0) return sin(x * x);
+    // else return log(x - 1.0) + cos(5.0 * x);
+}
 
 // Simple expression parser for mathematical expressions
 typedef struct {
@@ -268,25 +290,26 @@ void plotter_wrapper(const char *function_str) {
     // Number of points to sample
     const int NUM_POINTS = 1000;
     
-    // Default function if none provided
-    if (!function_str || strlen(function_str) == 0) {
-        function_str = "sin(x) * cos(x)";
-    }
+    // Check if we should use the hardcoded function
+    bool use_hardcoded = (!function_str || strlen(function_str) == 0);
+    const char *display_str = use_hardcoded ? "unknown" : function_str;
     
-    // Validate the function string
-    bool parse_error = false;
-    char error_msg[128] = {0};
-    (void)evaluate_function(function_str, 0.0, &parse_error, error_msg);
-    
-    if (parse_error) {
-        qol_error("Invalid function expression: %s\n", function_str);
-        qol_error("Error: %s\n", error_msg);
-        qol_error("Valid examples:\n");
-        qol_error("  sin(x) * cos(x)\n");
-        qol_error("  x^3 - 2*x + 1\n");
-        qol_error("  exp(-x*x/10)\n");
-        qol_error("  pow(x, 2)\n");
-        return;
+    // Validate the function string if provided
+    if (!use_hardcoded) {
+        bool parse_error = false;
+        char error_msg[128] = {0};
+        (void)evaluate_function(function_str, 0.0, &parse_error, error_msg);
+        
+        if (parse_error) {
+            qol_error("Invalid function expression: %s\n", function_str);
+            qol_error("Error: %s\n", error_msg);
+            qol_error("Valid examples:\n");
+            qol_error("  sin(x) * cos(x)\n");
+            qol_error("  x^3 - 2*x + 1\n");
+            qol_error("  exp(-x*x/10)\n");
+            qol_error("  pow(x, 2)\n");
+            return;
+        }
     }
     
     InitWindow(SCREEN_W, SCREEN_H, "Function Plotter");
@@ -300,11 +323,15 @@ void plotter_wrapper(const char *function_str) {
     for (int i = 0; i < NUM_POINTS; i++) {
         double x = x_min + (x_max - x_min) * i / (NUM_POINTS - 1);
         x_values[i] = x;
-        bool err = false;
-        y_values[i] = evaluate_function(function_str, x, &err, NULL);
-        if (err) {
-            // Should not happen if initial validation passed, but handle gracefully
-            y_values[i] = 0.0;
+        if (use_hardcoded) {
+            y_values[i] = f(x);
+        } else {
+            bool err = false;
+            y_values[i] = evaluate_function(function_str, x, &err, NULL);
+            if (err) {
+                // Should not happen if initial validation passed, but handle gracefully
+                y_values[i] = 0.0;
+            }
         }
     }
     
@@ -351,9 +378,13 @@ void plotter_wrapper(const char *function_str) {
             for (int i = 0; i < NUM_POINTS; i++) {
                 double x = x_min + (x_max - x_min) * i / (NUM_POINTS - 1);
                 x_values[i] = x;
-                bool err = false;
-                y_values[i] = evaluate_function(function_str, x, &err, NULL);
-                if (err) y_values[i] = 0.0;
+                if (use_hardcoded) {
+                    y_values[i] = f(x);
+                } else {
+                    bool err = false;
+                    y_values[i] = evaluate_function(function_str, x, &err, NULL);
+                    if (err) y_values[i] = 0.0;
+                }
             }
             
             last_mouse_pos = mouse_pos;
@@ -392,9 +423,13 @@ void plotter_wrapper(const char *function_str) {
             for (int i = 0; i < NUM_POINTS; i++) {
                 double x = x_min + (x_max - x_min) * i / (NUM_POINTS - 1);
                 x_values[i] = x;
-                bool err = false;
-                y_values[i] = evaluate_function(function_str, x, &err, NULL);
-                if (err) y_values[i] = 0.0;
+                if (use_hardcoded) {
+                    y_values[i] = f(x);
+                } else {
+                    bool err = false;
+                    y_values[i] = evaluate_function(function_str, x, &err, NULL);
+                    if (err) y_values[i] = 0.0;
+                }
             }
         }
         
@@ -488,7 +523,7 @@ void plotter_wrapper(const char *function_str) {
             
             // Display function string (truncate if too long)
             char func_display[64];
-            snprintf(func_display, sizeof(func_display), "f(x) = %s", function_str);
+            snprintf(func_display, sizeof(func_display), "f(x) = %s", display_str);
             if (strlen(func_display) > 40) {
                 func_display[37] = '.';
                 func_display[38] = '.';
