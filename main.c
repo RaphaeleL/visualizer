@@ -1,9 +1,9 @@
 #define QOL_IMPLEMENTATION
 #include "libs/build.h"
 
-#include "maze.h"
-#include "sort.h"
-#include "plotter.h"
+#include "entries/maze.h"
+#include "entries/sort.h"
+#include "entries/plotter.h"
 
 typedef void (*cmd_fn)(const char *arg);
 typedef struct {
@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    qol_shift(argc, argv); 
+    qol_shift(argc, argv);
     const char* val = qol_shift(argc, argv);
     cmd_fn fn = lookup_command(val);
 

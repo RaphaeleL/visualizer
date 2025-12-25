@@ -4,19 +4,19 @@
 #include <time.h>
 
 #define QOL_IMPLEMENTATION
-#include "libs/build.h"
+#include "../libs/build.h"
 
 #define SORT_TICK 0.0f
 #define SORT_MAX_VALUE 420
 
-#include "algorithms/sort/common.h"
+#include "../algorithms/sort/common.h"
 
 // Choose one algorithm (comment/uncomment a single include):
-// #include "algorithms/sort/bubble.h"
-// #include "algorithms/sort/selection.h"
-// #include "algorithms/sort/merge.h"
-#include "algorithms/sort/quick.h"
-// #include "algorithms/sort/heap.h"
+// #include "../algorithms/sort/bubble.h"
+// #include "../algorithms/sort/selection.h"
+// #include "../algorithms/sort/merge.h"
+#include "../algorithms/sort/quick.h"
+// #include "../algorithms/sort/heap.h"
 
 static void sort_state_reset_common(SortState *s, int n) {
     s->n = n;

@@ -2,20 +2,20 @@
 #include <raylib.h>
 
 #define QOL_IMPLEMENTATION
-#include "libs/build.h"
+#include "../libs/build.h"
 
 // Maze generation using recursive backtracking
 #define TICK 0.025f // seconds per step
 #define SEED -1 // -1 for random seed
 
-#include "algorithms/maze/common.h"
+#include "../algorithms/maze/common.h"
 
 // Choose one algorithm:
-// #include "algorithms/maze/bfs.h"
-// #include "algorithms/maze/dfs.h"
-// #include "algorithms/maze/greedy.h"
-// #include "algorithms/maze/astar.h"
-#include "algorithms/maze/dijkstra.h"
+// #include "../algorithms/maze/bfs.h"
+// #include "../algorithms/maze/dfs.h"
+// #include "../algorithms/maze/greedy.h"
+// #include "../algorithms/maze/astar.h"
+#include "../algorithms/maze/dijkstra.h"
 
 void ShuffleDirs() {
     for (int i = 0; i < 4; i++) {
