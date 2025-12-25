@@ -14,8 +14,8 @@
 // Choose one algorithm (comment/uncomment a single include):
 // #include "algorithms/sort/bubble.h"
 // #include "algorithms/sort/selection.h"
-#include "algorithms/sort/merge.h"
-// #include "algorithms/sort/quick.h"
+// #include "algorithms/sort/merge.h"
+#include "algorithms/sort/quick.h"
 // #include "algorithms/sort/heap.h"
 
 static void sort_state_reset_common(SortState *s, int n) {
