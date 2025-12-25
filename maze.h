@@ -5,14 +5,8 @@
 #include "libs/build.h"
 
 // Maze generation using recursive backtracking
-#define WALL 1
-#define PATH 0
-
-#define INF 1000000
 #define TICK 0.025f // seconds per step
 #define SEED -1 // -1 for random seed
-
-static int dirs[4][2] = {{0,-1},{1,0},{0,1},{-1,0}};
 
 #include "algorithms/maze/common.h"
 
