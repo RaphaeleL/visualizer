@@ -12,7 +12,7 @@ typedef struct {
     cmd_fn fn;
 } Command;
 
-void usage_wrapper(const char *arg) {
+void usage(const char *arg) {
     (void)arg; // unused
     qol_warn("Usage: <program> <param> [args...]\n");
     qol_warn("param:\n");
@@ -41,9 +41,9 @@ void sort_wrapper(const char *arg) {
 static Command commands[] = {
     { "maze",    maze_wrapper },
     { "sort",    sort_wrapper },
-    { "plotter", plotter_wrapper },
-    { "hexdump", hexdump_wrapper },
-    { "usage",   usage_wrapper },
+    { "plotter", plotter },
+    { "hexdump", hexdump },
+    { "usage",   usage },
 };
 
 
@@ -58,7 +58,7 @@ cmd_fn lookup_command(const char *name) {
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        usage_wrapper(NULL);
+        usage(NULL);
         return EXIT_FAILURE;
     }
 
@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
 
     if (!fn) {
         qol_error("Unknown type: %s\n", val);
-        usage_wrapper(NULL);
+        usage(NULL);
         return EXIT_FAILURE;
     }
 

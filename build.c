@@ -8,6 +8,10 @@ int main() {
 
     const char *files[][2] = {
         { "main.c",                     "out/main.o" },
+        { "entries/maze.c",             "out/maze.o" },
+        { "entries/sort.c",             "out/sort.o" },
+        { "entries/plotter.c",          "out/plotter.o" },
+        { "entries/hexdump.c",          "out/hexdump.o" },
         { "algorithms/maze/common.c",   "out/common.o" },
         { "algorithms/maze/bfs.c",      "out/bfs.o" },
         { "algorithms/maze/dfs.c",      "out/dfs.o" },
@@ -15,7 +19,7 @@ int main() {
         { "algorithms/maze/astar.c",    "out/astar.o" },
         { "algorithms/maze/greedy.c",   "out/greedy.o" },
         { "algorithms/sort/heap.c",     "out/heap.o" },
-        { "algorithms/sort/merge.c",    "out/merge.o" },
+        { "algorithms/sort/merge.c",   "out/merge.o" },
         { "algorithms/sort/quick.c",    "out/quick.o" },
         { "algorithms/sort/selection.c","out/selection.o" },
         { "algorithms/sort/bubble.c",   "out/bubble.o" },
