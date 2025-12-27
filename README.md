@@ -14,20 +14,20 @@ First you have to build the application:
 
 ```bash
 cc build.c -o build` # Compile the builder
-./build # Compile the app
+./build              # Compile the app
 ```
 
 The helper emits a binary named `main`. Now you can run the visualizer itself:
 
 ```bash
-./main maze # Maze search visualizer
-./main sort # Sorting visualizer
-./main plotter "x^2" # Function visualizer from cli
-./main plotter # Function visualizer from hardcoded function
-./main hexdump file.bin # Hexdump viewer
+./main maze                  # Maze search visualizer
+./main sort                  # Sorting visualizer
+./main plotter "x^2"         # Function visualizer from cli
+./main plotter               # Function visualizer from hardcoded function
+./main hexdump file.bin      # Hexdump viewer
 ./main hexdump "Hello World" # Hexdump from string
 echo "test" | ./main hexdump # Hexdump from stdin
-./main usage # Help
+./main usage                 # Help
 ```
 
 Since its a raylib application, it opens a window to display the visualizations, press `Esc` to quit. Inside the maze or the sorter, you can press `r` to reset/regenerate.
