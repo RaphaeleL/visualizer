@@ -4,6 +4,7 @@
 #include "entries/maze.h"
 #include "entries/sort.h"
 #include "entries/plotter.h"
+#include "entries/hexdump.h"
 
 typedef void (*cmd_fn)(const char *arg);
 typedef struct {
@@ -20,6 +21,10 @@ void usage_wrapper(const char *arg) {
     qol_warn("  plotter [function] - Function Plotter for f(x).\n");
     qol_warn("           Example: ./main plotter \"sin(x) * cos(x)\"\n");
     qol_warn("           Example: ./main plotter \"x^3 - 2*x + 1\"\n");
+    qol_warn("  hexdump [input] - Display input in hexdump -C format.\n");
+    qol_warn("           Example: ./main hexdump file.bin\n");
+    qol_warn("           Example: ./main hexdump \"Hello World\"\n");
+    qol_warn("           Example: echo \"test\" | ./main hexdump\n");
     qol_warn("  usage   - Show this usage information\n");
 }
 
@@ -37,6 +42,7 @@ static Command commands[] = {
     { "maze",    maze_wrapper },
     { "sort",    sort_wrapper },
     { "plotter", plotter_wrapper },
+    { "hexdump", hexdump_wrapper },
     { "usage",   usage_wrapper },
 };
 
