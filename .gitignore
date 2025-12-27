@@ -5,6 +5,8 @@ logs/
 build
 .DS_Store
 
+main
+
 # Prerequisites
 *.d
 
