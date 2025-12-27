@@ -13,8 +13,8 @@ Tiny raylib playground that renders several visualizations for algorithms or fun
 First you have to build the application:
 
 ```bash
-cc build.c -o build` # Compile the builder
-./build              # Compile the app
+cc build.c -o build # Compile the builder
+./build             # Compile the app
 ```
 
 The helper emits a binary named `main`. Now you can run the visualizer itself:
