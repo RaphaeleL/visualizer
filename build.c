@@ -18,6 +18,7 @@ Procs procs = {0};
 int main() {
     auto_rebuild(__FILE__);
 
+#ifdef MACOS
     const char* src_folders[] = {"entries", "algorithms/maze", "algorithms/sort"};
     const char* out_folder = "out";
     list(const char*) files = {0};
@@ -62,6 +63,9 @@ int main() {
     for (size_t i = 0; i < files.len; i++) push(&link, files.data[i]);
     
     if (!run_always(&link)) return EXIT_FAILURE;
+#else
+    erro("This build script is only configured for macOS. For other platforms (windows, linux, ...), get raylib and adjust the flags accordingly.\n");
+#endif // MACOS
 
     return EXIT_SUCCESS;
 }
