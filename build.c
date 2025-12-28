@@ -19,7 +19,7 @@ int main() {
     auto_rebuild(__FILE__);
 
 #ifdef MACOS
-    const char* src_folders[] = {"entries", "algorithms/maze", "algorithms/sort"};
+    const char* src_folders[] = {"entries", "algorithms"};
     const char* out_folder = "out";
     list(const char*) files = {0};
 
@@ -30,7 +30,7 @@ int main() {
         const char* src_folder = src_folders[sf];
         String contents = {0};
 
-        if (!read_dir(src_folder, &contents)) return EXIT_FAILURE;
+        if (!read_dir_recursive(src_folder, &contents)) return EXIT_FAILURE;
 
         for (size_t i = 0; i < contents.len; i++) {
             const char* src_path = contents.data[i];
