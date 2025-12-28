@@ -41,7 +41,7 @@ int main() {
 
             base(&cmd);
             push(&cmd, "-c", src_path, "-o", new_path);
-            if (!run(&cmd)) return EXIT_SUCCESS;
+            if (!run(&cmd)) return EXIT_FAILURE;
             push(&files, new_path);
         }
     }
@@ -49,7 +49,7 @@ int main() {
     // Compile the main.c
     base(&cmd);
     push(&cmd, "-c", "main.c", "-o", "out/main.o");
-    if (!run(&cmd)) return EXIT_SUCCESS;
+    if (!run(&cmd)) return EXIT_FAILURE;
     push(&files, "out/main.o");
 
     // Link all object files into the final executable
