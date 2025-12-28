@@ -12,7 +12,7 @@
 
     ----------------------------------------------------------------------------
     Created : 02 Oct 2025
-    Changed : 21 Dez 2025
+    Changed : 28 Dez 2025
     Author  : Raphaele Salvatore Licciardo, M.Sc.
     License : MIT
     Version : 0.0.3
@@ -91,6 +91,8 @@
 
       0.0.3 - wip 
         - overall thread safety improvements
+        - make qol_read_dir() saving full paths
+        - add qol_read_dir_recursive() to read dirs recursively
 
     ----------------------------------------------------------------------------
     Copyright (c) 2025 Raphaele Salvatore Licciardo
@@ -594,6 +596,11 @@ bool qol_copy_dir_rec(const char *src_path, const char *dst_path);
 // Returns true on success, false on failure. The content parameter must be initialized (or zeroed).
 // Caller must free with qol_release_string. Skips "." and ".." entries.
 bool qol_read_dir(const char *parent, QOL_String *content);
+
+// Recursively read the contents of a directory and all subdirectories, storing full paths in a QOL_String dynamic array.
+// Returns true on success, false on failure. The content parameter must be initialized (or zero
+// ed). Caller must free with qol_release_string. Skips "." and ".." entries.
+bool qol_read_dir_recursive(const char *parent, QOL_String *content);
 
 // Read a file line by line into a QOL_String dynamic array. Each line becomes an element.
 // Returns true on success, false on failure. Strips trailing newlines from each line.
@@ -2584,6 +2591,112 @@ void qol_timer_reset(QOL_Timer *timer);
         return true;
     }
 
+    bool qol_read_dir_recursive(const char *parent, QOL_String *content) {
+        if (!parent || !content) return false;
+
+        // Initialize content only on first call (when data is NULL)
+        if (content->data == NULL) {
+            content->data = NULL;
+            content->len = 0;
+            content->cap = 0;
+        }
+
+#if defined(MACOS) || defined(LINUX)
+        DIR *dir = opendir(parent);
+        if (!dir) {
+            qol_log(QOL_LOG_ERRO, "Failed to open directory: %s\n", parent);
+            return false;
+        }
+
+        struct dirent *entry;
+        char full_path[QOL_PATH_BUFFER_SIZE];
+        struct stat st;
+        while ((entry = readdir(dir)) != NULL) {
+            // Skip "." and ".." entries
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+                continue;
+
+            if (snprintf(full_path, sizeof(full_path), "%s/%s", parent, entry->d_name) >= (int)sizeof(full_path)) {
+                qol_log(QOL_LOG_WARN, "Path too long, skipping: %s/%s\n", parent, entry->d_name);
+                continue;
+            }
+
+            // Check if entry is a directory
+            if (stat(full_path, &st) == 0) {
+                if (S_ISDIR(st.st_mode)) {
+                    // Recursively read subdirectory
+                    if (!qol_read_dir_recursive(full_path, content)) {
+                        closedir(dir);
+                        return false;
+                    }
+                } else {
+                    // Add file to content
+                    char *entry_path = strdup(full_path);
+                    if (!entry_path) {
+                        qol_release_string(content);
+                        closedir(dir);
+                        return false;
+                    }
+                    qol_push(content, entry_path);
+                }
+            } else {
+                qol_log(QOL_LOG_WARN, "Failed to stat: %s\n", full_path);
+            }
+        }
+
+        closedir(dir);
+        return true;
+#elif defined(WINDOWS)
+        WIN32_FIND_DATA find_data;
+        char search_path[QOL_PATH_BUFFER_SIZE];
+        if (snprintf(search_path, sizeof(search_path), "%s\\*", parent) >= (int)sizeof(search_path)) {
+            qol_log(QOL_LOG_ERRO, "Search path too long: %s\n", parent);
+            return false;
+        }
+
+        HANDLE handle = FindFirstFile(search_path, &find_data);
+        if (handle == INVALID_HANDLE_VALUE) {
+            qol_log(QOL_LOG_ERRO, "Failed to open directory: %s\n", parent);
+            return false;
+        }
+
+        char full_path[QOL_PATH_BUFFER_SIZE];
+        do {
+            // Skip "." and ".." entries
+            if (strcmp(find_data.cFileName, ".") == 0 || strcmp(find_data.cFileName, "..") == 0)
+                continue;
+
+            if (snprintf(full_path, sizeof(full_path), "%s\\%s", parent, find_data.cFileName) >= (int)sizeof(full_path)) {
+                qol_log(QOL_LOG_WARN, "Path too long, skipping: %s\\%s\n", parent, find_data.cFileName);
+                continue;
+            }
+
+            // Check if entry is a directory
+            if (find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                // Recursively read subdirectory
+                if (!qol_read_dir_recursive(full_path, content)) {
+                    FindClose(handle);
+                    return false;
+                }
+            } else {
+                // Add file to content
+                char *entry_path = _strdup(full_path);
+                if (!entry_path) {
+                    qol_release_string(content);
+                    FindClose(handle);
+                    return false;
+                }
+                qol_push(content, entry_path);
+            }
+        } while (FindNextFile(handle, &find_data));
+
+        FindClose(handle);
+        return true;
+#else
+        #error Unsupported platform
+#endif
+    }
+
     bool qol_read_dir(const char *parent, QOL_String *content) {
         if (!parent || !content) return false;
 
@@ -3771,6 +3884,7 @@ void qol_timer_reset(QOL_Timer *timer);
     #define copy_file               qol_copy_file
     #define copy_dir_rec            qol_copy_dir_rec
     #define read_dir                qol_read_dir
+    #define read_dir_recursive      qol_read_dir_recursive
     #define read_file               qol_read_file
     #define write_file              qol_write_file
     #define get_file_type           qol_get_file_type
