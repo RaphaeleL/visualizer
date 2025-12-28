@@ -301,13 +301,13 @@ void plotter(const char *function_str) {
         (void)evaluate_function(function_str, 0.0, &parse_error, error_msg);
 
         if (parse_error) {
-            qol_error("Invalid function expression: %s\n", function_str);
-            qol_error("Error: %s\n", error_msg);
-            qol_error("Valid examples:\n");
-            qol_error("  sin(x) * cos(x)\n");
-            qol_error("  x^3 - 2*x + 1\n");
-            qol_error("  exp(-x*x/10)\n");
-            qol_error("  pow(x, 2)\n");
+            qol_erro("Invalid function expression: %s\n", function_str);
+            qol_erro("Error: %s\n", error_msg);
+            qol_erro("Valid examples:\n");
+            qol_erro("  sin(x) * cos(x)\n");
+            qol_erro("  x^3 - 2*x + 1\n");
+            qol_erro("  exp(-x*x/10)\n");
+            qol_erro("  pow(x, 2)\n");
             return;
         }
     }

@@ -21,7 +21,7 @@ void hexdump(const char *input) {
         size_t buffer_size = 4096;
         data = malloc(buffer_size);
         if (!data) {
-            qol_error("hexdump: memory allocation failed\n");
+            qol_erro("hexdump: memory allocation failed\n");
             return;
         }
 
@@ -33,7 +33,7 @@ void hexdump(const char *input) {
                 buffer_size *= 2;
                 unsigned char *new_data = realloc(data, buffer_size);
                 if (!new_data) {
-                    qol_error("hexdump: memory reallocation failed\n");
+                    qol_erro("hexdump: memory reallocation failed\n");
                     free(data);
                     return;
                 }
@@ -53,7 +53,7 @@ void hexdump(const char *input) {
             fseek(fp, 0, SEEK_SET);
 
             if (file_size < 0) {
-                qol_error("hexdump: cannot determine file size\n");
+                qol_erro("hexdump: cannot determine file size\n");
                 fclose(fp);
                 return;
             }
@@ -61,7 +61,7 @@ void hexdump(const char *input) {
             data_size = (size_t)file_size;
             data = malloc(data_size);
             if (!data) {
-                qol_error("hexdump: memory allocation failed\n");
+                qol_erro("hexdump: memory allocation failed\n");
                 fclose(fp);
                 return;
             }
@@ -70,7 +70,7 @@ void hexdump(const char *input) {
             fclose(fp);
 
             if (bytes_read != data_size) {
-                qol_error("hexdump: read error (expected %zu bytes, got %zu)\n", data_size, bytes_read);
+                qol_erro("hexdump: read error (expected %zu bytes, got %zu)\n", data_size, bytes_read);
                 free(data);
                 return;
             }
@@ -83,7 +83,7 @@ void hexdump(const char *input) {
             data_size = strlen(input);
             data = malloc(data_size);
             if (!data) {
-                qol_error("hexdump: memory allocation failed\n");
+                qol_erro("hexdump: memory allocation failed\n");
                 return;
             }
             memcpy(data, input, data_size);
@@ -91,7 +91,7 @@ void hexdump(const char *input) {
     }
 
     if (data_size == 0) {
-        qol_error("hexdump: no data to display\n");
+        qol_erro("hexdump: no data to display\n");
         if (data) free(data);
         return;
     }
