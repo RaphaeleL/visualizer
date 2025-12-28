@@ -5,6 +5,7 @@
 #include "entries/sort.h"
 #include "entries/plotter.h"
 #include "entries/hexdump.h"
+#include "entries/solar.h"
 
 typedef void (*cmd_fn)(const char *arg);
 typedef struct {
@@ -25,6 +26,7 @@ void usage(const char *arg) {
     qol_warn("           Example: ./main hexdump file.bin\n");
     qol_warn("           Example: ./main hexdump \"Hello World\"\n");
     qol_warn("           Example: echo \"test\" | ./main hexdump\n");
+    qol_warn("  solar   - Raytrace the Solar System.\n");
     qol_warn("  usage   - Show this usage information\n");
 }
 
@@ -38,11 +40,17 @@ void sort_wrapper(const char *arg) {
     sort();
 }
 
+void solar_wrapper(const char *arg) {
+    (void)arg; // unused
+    solar();
+}
+
 static Command commands[] = {
     { "maze",    maze_wrapper },
     { "sort",    sort_wrapper },
     { "plotter", plotter },
     { "hexdump", hexdump },
+    { "solar",   solar_wrapper },
     { "usage",   usage },
 };
 
@@ -67,7 +75,7 @@ int main(int argc, char** argv) {
     cmd_fn fn = lookup_command(val);
 
     if (!fn) {
-        qol_error("Unknown type: %s\n", val);
+        qol_erro("Unknown type: %s\n", val);
         usage(NULL);
         return EXIT_FAILURE;
     }
